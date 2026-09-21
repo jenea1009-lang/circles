@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Circles</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,sans-serif}
+    body{display:grid;place-items:center;background:#f5f5f5;color:#222;padding:24px}
+    main{text-align:center}
+    h1{margin:0 0 8px;font-size:clamp(28px,7vw,48px)}
+    p{margin:0 0 28px;color:#666}
+    .circles{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+    .circle{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:white;border:3px solid #222;font-size:20px}
+    .circle:nth-child(2){border-style:dashed}
+    .circle:nth-child(3){border-width:5px}
+    .status{margin-top:28px;font-size:14px;color:#888}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Circles</h1>
+    <p>Наш интерактивный эксперимент</p>
+    <section class="circles" aria-label="Три круга">
+      <div class="circle">Круг 1</div>
+      <div class="circle">Круг 2</div>
+      <div class="circle">Круг 3</div>
+    </section>
+    <div class="status">Версия 1 · GitHub Pages</div>
+  </main>
+</body>
+</html>
