@@ -7,30 +7,75 @@
   <style>
     *{box-sizing:border-box}
     html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,sans-serif}
-    body{display:grid;place-items:center;background:#101828;color:#fff;padding:24px}
-    main{text-align:center}
+    body{display:grid;place-items:center;background:#101828;color:#fff;padding:24px;overflow:hidden}
+    main{text-align:center;width:100%;max-width:760px}
     h1{margin:0 0 8px;font-size:clamp(28px,7vw,48px)}
-    p{margin:0 0 28px;color:#b8c2d1}
-    .circles{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
-    .circle{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:white;color:#222;border:3px solid #222;font-size:20px}
-    .circle:nth-child(2){border-style:dashed}
-    .circle:nth-child(3){border-width:5px}
-    .circle:nth-child(1){width:210px;height:210px;background:#ffe45c;color:#222;border-color:#e0a900;transform:rotate(-3deg);font-size:26px;font-weight:700}
-    .circle:nth-child(2){background:#ff7a7a;border-color:#ff3b3b;color:#fff;transform:rotate(6deg)}
-    .circle:nth-child(3){background:#65d6ff;border-color:#008fc4;color:#07384a;transform:rotate(-5deg)}
-    .status{margin-top:28px;font-size:14px;color:#8d9aad}
+    p{margin:0 0 18px;color:#b8c2d1}
+    .arena{position:relative;height:min(62vh,520px);min-height:360px;border:2px dashed #40506a;border-radius:24px;overflow:hidden;background:#162238;touch-action:none}
+    .circle{position:absolute;width:150px;height:150px;border-radius:50%;display:grid;place-items:center;color:#222;border:3px solid #222;font-size:20px;cursor:grab;user-select:none;touch-action:none}
+    .circle:active{cursor:grabbing}
+    .circle:nth-child(1){width:210px;height:210px;background:#ffe45c;border-color:#e0a900;font-size:26px;font-weight:700}
+    .circle:nth-child(2){background:#ff7a7a;border-color:#ff3b3b;color:#fff;border-style:dashed}
+    .circle:nth-child(3){background:#65d6ff;border-color:#008fc4;color:#07384a;border-width:5px}
+    .hint{margin:12px 0 0;color:#8d9aad;font-size:14px}
+    .status{margin-top:10px;font-size:14px;color:#8d9aad}
   </style>
 </head>
 <body>
   <main>
     <h1>Circles</h1>
-    <p>Наш интерактивный эксперимент</p>
-    <section class="circles" aria-label="Три круга">
-      <div class="circle">Я ИЗМЕНИЛСЯ 😎</div>
-      <div class="circle">Я ТОЖЕ! 🔥</div>
-      <div class="circle">И Я! ⚡</div>
+    <p>Перетаскивай кругляши 😎</p>
+    <section class="arena" id="arena" aria-label="Поле с перетаскиваемыми кругами">
+      <div class="circle" tabindex="0">Я ИЗМЕНИЛСЯ 😎</div>
+      <div class="circle" tabindex="0">Я ТОЖЕ! 🔥</div>
+      <div class="circle" tabindex="0">И Я! ⚡</div>
     </section>
-    <div class="status">Версия 3 · HTML Preview</div>
+    <div class="hint">Тяни пальцем или мышкой. Круги можно двигать по полю.</div>
+    <div class="status">Версия 4 · Drag &amp; Drop</div>
   </main>
+  <script>
+    const arena=document.getElementById('arena');
+    const circles=[...arena.querySelectorAll('.circle')];
+    const initial=[
+      {x:18,y:18},{x:58,y:12},{x:36,y:62}
+    ];
+    function place(c,i){
+      const maxX=Math.max(0,arena.clientWidth-c.offsetWidth);
+      const maxY=Math.max(0,arena.clientHeight-c.offsetHeight);
+      c.style.left=Math.min(maxX,arena.clientWidth*initial[i].x/100)+'px';
+      c.style.top=Math.min(maxY,arena.clientHeight*initial[i].y/100)+'px';
+    }
+    circles.forEach((c,i)=>place(c,i));
+    window.addEventListener('resize',()=>circles.forEach((c,i)=>place(c,i)));
+    circles.forEach(c=>{
+      let drag=false,ox=0,oy=0;
+      c.addEventListener('pointerdown',e=>{
+        drag=true;c.setPointerCapture(e.pointerId);
+        const r=c.getBoundingClientRect();
+        ox=e.clientX-r.left;oy=e.clientY-r.top;
+      });
+      c.addEventListener('pointermove',e=>{
+        if(!drag)return;
+        const ar=arena.getBoundingClientRect();
+        const x=Math.max(0,Math.min(arena.clientWidth-c.offsetWidth,e.clientX-ar.left-ox));
+        const y=Math.max(0,Math.min(arena.clientHeight-c.offsetHeight,e.clientY-ar.top-oy));
+        c.style.left=x+'px';c.style.top=y+'px';
+      });
+      c.addEventListener('pointerup',()=>drag=false);
+      c.addEventListener('pointercancel',()=>drag=false);
+      c.addEventListener('keydown',e=>{
+        const step=e.shiftKey?20:8;
+        let x=parseFloat(c.style.left)||0,y=parseFloat(c.style.top)||0;
+        if(e.key==='ArrowLeft')x-=step;
+        else if(e.key==='ArrowRight')x+=step;
+        else if(e.key==='ArrowUp')y-=step;
+        else if(e.key==='ArrowDown')y+=step;
+        else return;
+        e.preventDefault();
+        c.style.left=Math.max(0,Math.min(arena.clientWidth-c.offsetWidth,x))+'px';
+        c.style.top=Math.max(0,Math.min(arena.clientHeight-c.offsetHeight,y))+'px';
+      });
+    });
+  </script>
 </body>
 </html>
